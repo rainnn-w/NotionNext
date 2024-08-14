@@ -9,8 +9,7 @@ import CONFIG from '../config'
 let wrapperTop = 0
 
 /**
- * 首页英雄区
- * 是一张大图，带个居中按钮
+ *
  * @returns 头图
  */
 const Hero = props => {
@@ -18,10 +17,14 @@ const Hero = props => {
   const { siteInfo } = props
   const { locale } = useGlobal()
   const GREETING_WORDS = siteConfig('GREETING_WORDS').split(',')
+
   useEffect(() => {
     updateHeaderHeight()
     if (!typed && window && document.getElementById('typed')) {
-      loadExternalResource('/js/typed.min.js', 'js').then(() => {
+      loadExternalResource(
+        'https://cdn.jsdelivr.net/npm/typed.js@2.0.12',
+        'js'
+      ).then(() => {
         if (window.Typed) {
           changeType(
             new window.Typed('#typed', {
@@ -58,7 +61,7 @@ const Hero = props => {
       <div className='text-white absolute flex flex-col h-full items-center justify-center w-full '>
         {/* 站点标题 */}
         <div className='text-4xl md:text-5xl shadow-text'>
-          {siteInfo?.title || siteConfig('TITLE')}
+          {siteConfig('TITLE')}
         </div>
         {/* 站点欢迎语 */}
         <div className='mt-2 h-12 items-center text-center shadow-text text-white text-lg'>

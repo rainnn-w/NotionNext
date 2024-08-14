@@ -17,13 +17,11 @@ import ArticleRecommend from './components/ArticleRecommend'
 import BlogPostArchive from './components/BlogPostArchive'
 import BlogPostListPage from './components/BlogPostListPage'
 import BlogPostListScroll from './components/BlogPostListScroll'
-import ButtonJumpToComment from './components/ButtonJumpToComment'
-import ButtonRandomPostMini from './components/ButtonRandomPostMini'
 import Card from './components/Card'
 import Footer from './components/Footer'
-import Header from './components/Header'
 import Hero from './components/Hero'
-import PostHero from './components/PostHero'
+import JumpToCommentButton from './components/JumpToCommentButton'
+import PostHeader from './components/PostHeader'
 import RightFloatArea from './components/RightFloatArea'
 import SearchNav from './components/SearchNav'
 import SideRight from './components/SideRight'
@@ -31,6 +29,7 @@ import SlotBar from './components/SlotBar'
 import TagItemMini from './components/TagItemMini'
 import TocDrawer from './components/TocDrawer'
 import TocDrawerButton from './components/TocDrawerButton'
+import TopNav from './components/TopNav'
 import CONFIG from './config'
 import { Style } from './style'
 
@@ -52,11 +51,10 @@ export const useHexoGlobal = () => useContext(ThemeGlobalHexo)
 const LayoutBase = props => {
   const { post, children, slotTop, className } = props
   const { onLoading, fullWidth } = useGlobal()
-  const router = useRouter()
-  const showRandomButton = siteConfig('HEXO_MENU_RANDOM', false, CONFIG)
 
+  const router = useRouter()
   const headerSlot = post ? (
-    <PostHero {...props} />
+    <PostHeader {...props} />
   ) : router.route === '/' &&
     siteConfig('HEXO_HOME_BANNER_ENABLE', null, CONFIG) ? (
     <Hero {...props} />
@@ -65,7 +63,6 @@ const LayoutBase = props => {
   const drawerRight = useRef(null)
   const tocRef = isBrowser ? document.getElementById('article-wrapper') : null
 
-  // 悬浮按钮内容
   const floatSlot = (
     <>
       {post?.toc?.length > 1 && (
@@ -77,8 +74,7 @@ const LayoutBase = props => {
           />
         </div>
       )}
-      {post && <ButtonJumpToComment />}
-      {showRandomButton && <ButtonRandomPostMini {...props} />}
+      {post && <JumpToCommentButton />}
     </>
   )
 
@@ -93,7 +89,7 @@ const LayoutBase = props => {
         <Style />
 
         {/* 顶部导航 */}
-        <Header {...props} />
+        <TopNav {...props} />
 
         {/* 顶部嵌入 */}
         <Transition

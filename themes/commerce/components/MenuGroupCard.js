@@ -14,19 +14,19 @@ const MenuGroupCard = props => {
   const links = [
     {
       name: locale.COMMON.ARTICLE,
-      href: '/archive',
+      to: '/archive',
       slot: archiveSlot,
       show: CONFIG.MENU_ARCHIVE
     },
     {
       name: locale.COMMON.CATEGORY,
-      href: '/category',
+      to: '/category',
       slot: categorySlot,
       show: CONFIG.MENU_CATEGORY
     },
     {
       name: locale.COMMON.TAGS,
-      href: '/tag',
+      to: '/tag',
       slot: tagSlot,
       show: CONFIG.MENU_TAG
     }
@@ -46,9 +46,9 @@ const MenuGroupCard = props => {
         if (link.show) {
           return (
             <Link
-              key={`${link.slug}`}
-              title={link.name}
-              href={link.href}
+              key={`${link.to}`}
+              title={link.to}
+              href={link.to}
               target={link?.target}
               className={
                 'py-1.5 my-1 px-2 duration-300 text-base justify-center items-center cursor-pointer'

@@ -24,12 +24,10 @@ export async function getStaticProps({ locale }) {
   delete props.allPages
   return {
     props,
-    revalidate: process.env.EXPORT
-      ? undefined
-      : siteConfig(
-          'NEXT_REVALIDATE_SECOND',
-          BLOG.NEXT_REVALIDATE_SECOND,
-          props.NOTION_CONFIG
-        )
+    revalidate: siteConfig(
+      'NEXT_REVALIDATE_SECOND',
+      BLOG.NEXT_REVALIDATE_SECOND,
+      props.NOTION_CONFIG
+    )
   }
 }

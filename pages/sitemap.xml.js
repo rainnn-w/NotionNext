@@ -17,7 +17,7 @@ export const getServerSideProps = async ctx => {
       pageId: id,
       from: 'sitemap.xml'
     })
-    const link = siteConfig('LINK', '', siteData.NOTION_CONFIG)
+    const link = siteConfig('LINK', BLOG.LINK, siteData.NOTION_CONFIG)
     const localeFields = generateLocalesSitemap(link, siteData.allPages, locale)
     fields = fields.concat(localeFields)
   }
@@ -27,6 +27,7 @@ export const getServerSideProps = async ctx => {
     'Cache-Control',
     'public, max-age=3600, stale-while-revalidate=59'
   )
+  console.log('fff', fields)
   return getServerSideSitemap(ctx, fields)
 }
 
@@ -54,7 +55,7 @@ function generateLocalesSitemap(link, allPages, locale) {
       priority: '0.7'
     },
     {
-      loc: `${link}${locale}/rss/feed.xml`,
+      loc: `${link}${locale}/feed`,
       lastmod: new Date().toISOString().split('T')[0],
       changefreq: 'daily',
       priority: '0.7'

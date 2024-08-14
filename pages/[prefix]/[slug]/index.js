@@ -2,9 +2,9 @@ import BLOG from '@/blog.config'
 import { siteConfig } from '@/lib/config'
 import { getGlobalData, getPost, getPostBlocks } from '@/lib/db/getSiteData'
 import { uploadDataToAlgolia } from '@/lib/plugins/algolia'
-import { checkSlugHasOneSlash, getRecommendPost } from '@/lib/utils/post'
+import { checkContainHttp } from '@/lib/utils'
 import { idToUuid } from 'notion-utils'
-import Slug from '..'
+import Slug, { getRecommendPost } from '..'
 
 /**
  * 根据notion的slug访问页面
@@ -26,19 +26,11 @@ export async function getStaticPaths() {
 
   const from = 'slug-paths'
   const { allPages } = await getGlobalData({ from })
-
-  // 根据slug中的 / 分割成prefix和slug两个字段 ; 例如 article/test
-  // 最终用户可以通过  [domain]/[prefix]/[slug] 路径访问，即这里的 [domain]/article/test
   const paths = allPages
-    ?.filter(row => checkSlugHasOneSlash(row))
+    ?.filter(row => checkSlug(row))
     .map(row => ({
       params: { prefix: row.slug.split('/')[0], slug: row.slug.split('/')[1] }
     }))
-
-  // 增加一种访问路径 允许通过 [category]/[slug] 访问文章
-  // 例如文章slug 是 test ，然后文章的分类category是 production
-  // 则除了 [domain]/[slug] 以外，还支持分类名访问: [domain]/[category]/[slug]
-
   return {
     paths: paths,
     fallback: true
@@ -46,15 +38,20 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params: { prefix, slug }, locale }) {
-  const fullSlug = prefix + '/' + slug
+  let fullSlug = prefix + '/' + slug
   const from = `slug-props-${fullSlug}`
   const props = await getGlobalData({ from, locale })
 
+  if (siteConfig('PSEUDO_STATIC', BLOG.PSEUDO_STATIC, props.NOTION_CONFIG)) {
+    if (!fullSlug.endsWith('.html')) {
+      fullSlug += '.html'
+    }
+  }
   // 在列表内查找文章
   props.post = props?.allPages?.find(p => {
     return (
       p.type.indexOf('Menu') < 0 &&
-      (p.slug === slug || p.slug === fullSlug || p.id === idToUuid(fullSlug))
+      (p.slug === fullSlug || p.id === idToUuid(fullSlug))
     )
   })
 
@@ -72,18 +69,16 @@ export async function getStaticProps({ params: { prefix, slug }, locale }) {
     props.post = null
     return {
       props,
-      revalidate: process.env.EXPORT
-        ? undefined
-        : siteConfig(
-            'NEXT_REVALIDATE_SECOND',
-            BLOG.NEXT_REVALIDATE_SECOND,
-            props.NOTION_CONFIG
-          )
+      revalidate: siteConfig(
+        'REVALIDATE_SECOND',
+        BLOG.NEXT_REVALIDATE_SECOND,
+        props.NOTION_CONFIG
+      )
     }
   }
 
   // 文章内容加载
-  if (!props?.post?.blockMap) {
+  if (!props?.posts?.blockMap) {
     props.post.blockMap = await getPostBlocks(props.post.id, from)
   }
   // 生成全文索引 && JSON.parse(BLOG.ALGOLIA_RECREATE_DATA)
@@ -113,14 +108,22 @@ export async function getStaticProps({ params: { prefix, slug }, locale }) {
   delete props.allPages
   return {
     props,
-    revalidate: process.env.EXPORT
-      ? undefined
-      : siteConfig(
-          'NEXT_REVALIDATE_SECOND',
-          BLOG.NEXT_REVALIDATE_SECOND,
-          props.NOTION_CONFIG
-        )
+    revalidate: siteConfig(
+      'NEXT_REVALIDATE_SECOND',
+      BLOG.NEXT_REVALIDATE_SECOND,
+      props.NOTION_CONFIG
+    )
   }
 }
-
+function checkSlug(row) {
+  let slug = row.slug
+  if (slug.startsWith('/')) {
+    slug = slug.substring(1)
+  }
+  return (
+    (slug.match(/\//g) || []).length === 1 &&
+    !checkContainHttp(slug) &&
+    row.type.indexOf('Menu') < 0
+  )
+}
 export default PrefixSlug

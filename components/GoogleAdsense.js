@@ -61,10 +61,10 @@ function getNodesWithAdsByGoogleClass(node) {
  * 初始化谷歌广告
  * @returns
  */
-export const initGoogleAdsense = async ADSENSE_GOOGLE_ID => {
+export const initGoogleAdsense = async () => {
   console.log('Load Adsense')
   loadExternalResource(
-    `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_GOOGLE_ID}`,
+    `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${siteConfig('ADSENSE_GOOGLE_ID')}`,
     'js'
   ).then(url => {
     setTimeout(() => {
@@ -109,9 +109,7 @@ export const initGoogleAdsense = async ADSENSE_GOOGLE_ID => {
  * 添加 可以在本地调试
  */
 const AdSlot = ({ type = 'show' }) => {
-  const ADSENSE_GOOGLE_ID = siteConfig('ADSENSE_GOOGLE_ID')
-  const ADSENSE_GOOGLE_TEST = siteConfig('ADSENSE_GOOGLE_TEST')
-  if (!ADSENSE_GOOGLE_ID) {
+  if (!siteConfig('ADSENSE_GOOGLE_ID')) {
     return null
   }
   // 文章内嵌广告
@@ -122,8 +120,8 @@ const AdSlot = ({ type = 'show' }) => {
         style={{ display: 'block', textAlign: 'center' }}
         data-ad-layout='in-article'
         data-ad-format='fluid'
-        data-adtest={ADSENSE_GOOGLE_TEST ? 'on' : 'off'}
-        data-ad-client={ADSENSE_GOOGLE_ID}
+        data-adtest={siteConfig('ADSENSE_GOOGLE_TEST') ? 'on' : 'off'}
+        data-ad-client={siteConfig('ADSENSE_GOOGLE_ID')}
         data-ad-slot={siteConfig('ADSENSE_GOOGLE_SLOT_IN_ARTICLE')}></ins>
     )
   }
@@ -136,8 +134,8 @@ const AdSlot = ({ type = 'show' }) => {
         data-ad-format='fluid'
         data-ad-layout-key='-5j+cz+30-f7+bf'
         style={{ display: 'block' }}
-        data-adtest={ADSENSE_GOOGLE_TEST ? 'on' : 'off'}
-        data-ad-client={ADSENSE_GOOGLE_ID}
+        data-adtest={siteConfig('ADSENSE_GOOGLE_TEST') ? 'on' : 'off'}
+        data-ad-client={siteConfig('ADSENSE_GOOGLE_ID')}
         data-ad-slot={siteConfig('ADSENSE_GOOGLE_SLOT_FLOW')}></ins>
     )
   }
@@ -149,8 +147,8 @@ const AdSlot = ({ type = 'show' }) => {
         className='adsbygoogle'
         style={{ display: 'block', textAlign: 'center' }}
         data-ad-format='autorelaxed'
-        data-adtest={ADSENSE_GOOGLE_TEST ? 'on' : 'off'}
-        data-ad-client={ADSENSE_GOOGLE_ID}
+        data-adtest={siteConfig('ADSENSE_GOOGLE_TEST') ? 'on' : 'off'}
+        data-ad-client={siteConfig('ADSENSE_GOOGLE_ID')}
         data-ad-slot={siteConfig('ADSENSE_GOOGLE_SLOT_NATIVE')}></ins>
     )
   }
@@ -160,8 +158,8 @@ const AdSlot = ({ type = 'show' }) => {
     <ins
       className='adsbygoogle'
       style={{ display: 'block' }}
-      data-ad-client={ADSENSE_GOOGLE_ID}
-      data-adtest={ADSENSE_GOOGLE_TEST ? 'on' : 'off'}
+      data-ad-client={siteConfig('ADSENSE_GOOGLE_ID')}
+      data-adtest={siteConfig('ADSENSE_GOOGLE_TEST') ? 'on' : 'off'}
       data-ad-slot={siteConfig('ADSENSE_GOOGLE_SLOT_AUTO')}
       data-ad-format='auto'
       data-full-width-responsive='true'></ins>
