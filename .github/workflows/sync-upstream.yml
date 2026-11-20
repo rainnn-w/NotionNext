@@ -1,0 +1,71 @@
+name: Sync NotionNext upstream
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream and fetch
+        run: |
+          git remote add upstream https://github.com/tangly1024/NotionNext.git
+          git fetch upstream main --prune --no-tags
+
+      - name: Create sync pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          local_sha="$(git rev-parse main)"
+          upstream_sha="$(git rev-parse upstream/main)"
+
+          if [ "$local_sha" = "$upstream_sha" ]; then
+            echo "Already up to date."
+            exit 0
+          fi
+
+          if git merge-base --is-ancestor "$local_sha" "$upstream_sha"; then
+            echo "Fast-forward update detected; creating PR from upstream/main to main."
+            branch="sync/upstream-$(date +%Y%m%d-%H%M)"
+            git checkout -b "$branch" upstream/main
+          else
+            echo "Diverged; attempting a normal merge."
+            branch="sync/upstream-$(date +%Y%m%d-%H%M)"
+            git checkout -b "$branch"
+            if ! git merge --no-edit upstream/main; then
+              git merge --abort
+              echo "::error::Automatic merge has conflicts. Resolve them manually, then rerun the workflow."
+              exit 1
+            fi
+          fi
+
+          git push origin HEAD:refs/heads/"$branch"
+
+          gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "chore: sync upstream NotionNext" \
+            --body "Automated NotionNext upstream sync. Please review the diff and CI before merging."
+
+          if gh pr view --json mergeStateStatus --jq '.mergeStateStatus' | grep -Eq 'CLEAN|HAS_HOOKS'; then
+            gh pr merge --merge --auto
+          fi
