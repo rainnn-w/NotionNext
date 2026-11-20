@@ -61,7 +61,7 @@ jobs:
           # Upstream workflow changes cannot be pushed by the Actions token.
           # Preserve this fork's workflow directory and commit it back before push.
           git checkout main -- .github/workflows
-          if ! git diff --quiet -- .github/workflows; then
+          if ! git diff --cached --quiet HEAD -- .github/workflows; then
             git add .github/workflows
             git commit -m "chore: preserve fork workflows during upstream sync"
           fi
